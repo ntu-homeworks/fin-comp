@@ -2,6 +2,8 @@ class BinomialTree {
 
     class Node {
         let price: Money
+        var value: Money? = nil
+
         weak var upParent: Node? {
             willSet {
                 assert(upParent == nil)
@@ -69,15 +71,20 @@ class BinomialTree {
 
         for _ in 0..<n {
             var currentLevel = levels.last!
-            levels.append([])
-            var childLevel = levels.last!
-
-            childLevel.append(Node(price: currentLevel[0].price * u))
+            var childLevel = [Node(price: currentLevel[0].price * u)]
 
             for currentNode in currentLevel {
                 currentNode.insert(upExistChild: childLevel.last!)
                 childLevel.append(currentNode.insert(downChild: currentNode.price * d))
             }
+
+            levels.append(childLevel)
+        }
+    }
+
+    func reversedLevelTraverse(_ traverser: ([Node]) -> Void) {
+        for levelNodes in levels.reversed() {
+            traverser(levelNodes)
         }
     }
 }

@@ -1,0 +1,11 @@
+{
+  "name": "hw2",
+  "version": "1.0.0",
+  "description": "Pricing European-style Asian Single-barrier Up-and-out Calls Based on the CRR Binomial Tree",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Chih-Yung Liang",
+  "license": "ISC"
+}

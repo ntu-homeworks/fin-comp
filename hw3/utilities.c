@@ -2,13 +2,6 @@
 #include <stdlib.h>
 #include <gsl/gsl_multifit.h>
 
-// From https://goo.gl/YkDRiy
-double nrand(double mean, double std) {
-    double u = drand48();
-    double v = drand48();
-    return sqrt(-2 * log(u)) * cos(2 * M_PI * v) * std + mean;
-}
-
 // From https://rosettacode.org/wiki/Polynomial_regression#C
 void polynomialfit(int obs, int degree,
                    double *dx, double *dy, double *store) /* n, p */

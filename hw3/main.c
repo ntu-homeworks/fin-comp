@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <gsl/gsl_randist.h>
 #include "arguments.h"
 #include "utilities.h"
 
@@ -16,8 +17,9 @@ static inline double discounted_future(double *cash_flow_j, int i, int n, double
 }
 
 int main(int argc, char *argv[]) {
+    gsl_rng *rng = gsl_rng_alloc(gsl_rng_default);
 #ifndef PSEUDO_RANDOM
-    srand48(time(NULL));
+    gsl_rng_set(rng, time(NULL));
 #endif
 
     get_arguments(argc, argv);
@@ -35,7 +37,7 @@ int main(int argc, char *argv[]) {
         for (int i=1; i<n; i++) {
             stock_prices[j][i] = stock_prices[j][i-1] * exp(
                 (r - sigma * sigma / 2) * delta_t +
-                sigma * sqrt(delta_t) * nrand(0, 1)
+                sigma * sqrt(delta_t) * gsl_ran_gaussian(rng, 1)
             );
         }
     }

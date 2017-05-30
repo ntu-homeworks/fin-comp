@@ -82,16 +82,7 @@ int main(int argc, char *argv[]) {
                 stock_prices[j][i] * coef[1] +                      // x^1
                 stock_prices[j][i] * stock_prices[j][i] * coef[2];  // x^2
 
-            if (continuation > exercise) {
-                cash_flow[j][i] = 0;
-            } else {
-                cash_flow[j][i] = exercise;
-
-                // Early exercised, so following time periods are valueless.
-                for (int ii=i+1; ii<n; ii++) {
-                    cash_flow[j][ii] = 0;
-                }
-            }
+            cash_flow[j][i] = exercise > continuation ? exercise : 0;
         }
     }
 

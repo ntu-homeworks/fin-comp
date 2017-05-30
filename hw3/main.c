@@ -97,12 +97,22 @@ int main(int argc, char *argv[]) {
 
     // Calculate the put price
     double value_sum = 0;
+    double values[k];
     for (int j=0; j<k; j++) {
-        value_sum += discounted_future(cash_flow[j], 0, n, discount_factor);
+        values[j] = discounted_future(cash_flow[j], 0, n, discount_factor);
+        value_sum += values[j];
     }
-    double put_price = fmax(value_sum / (double) k, X - S);
+    double put_price = value_sum / (double) k;
 
-    printf("Put price: %lf\n", put_price);
+    // Calculate the std err
+    double variance = 0;
+    for (int j=0; j<k; j++) {
+        variance += (put_price - values[j]) * (put_price - values[j]);
+    }
+    variance /= k;
+
+    printf("Put price:\t%lf\n", fmax(put_price, X - S));
+    printf("Standard error:\t%lf\n", sqrt(variance / k));
 
     free(cash_flow);
     free(stock_prices);

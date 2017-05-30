@@ -53,4 +53,6 @@ print_usage:
     for (int i=0; i<ARG_COUNT; i++) {
         printf("\t- %s: %s.\n", symbols[i], descriptions[i]);
     }
+
+    exit(1);
 }

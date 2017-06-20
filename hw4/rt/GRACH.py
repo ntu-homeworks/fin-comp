@@ -36,11 +36,16 @@ class ProbabilityFactory(object):
                 for jd in range(n + 1):
                     jm = n - ju - jd
                     l = ju - jd
+                    if jm < 0:
+                        continue
 
                     coef = factorial(n) \
                            / (factorial(ju) * factorial(jm) * factorial(jd))
                     self.pl[l] += coef * (self.pu ** ju) \
                                   * (self.pm ** jm) * (self.pd ** jd)
+
+        def truth(self):
+            return all(0 <= p <= 1 for p in (self.pu, self.pm, self.pd))
 
         def __getitem__(self, l):
             return self.pl[l]
@@ -51,4 +56,4 @@ class ProbabilityFactory(object):
         self.r = r
 
     def __call__(self, eta, h2_t):
-        return Probability(self.gamma, self.n, self.r, eta, h2_t)
+        return self.Probability(self.gamma, self.n, self.r, eta, h2_t)

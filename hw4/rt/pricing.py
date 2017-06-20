@@ -54,8 +54,8 @@ class BackwardInduction(object):
     def _pricing(self, call_put, european_american):
         def profit(p):
             return max((p - self.strike) * (1 if call_put else -1), 0)
-        def eraly_term(p):
-            return p if european_american else max(p, 0)
+        def eraly_term(p, nodestock):
+            return p if european_american else max(p, self.strike - nodestock)
 
         n = self.rttree.n
         lastdayprice = {node: profit(exp(node.y))
@@ -63,10 +63,12 @@ class BackwardInduction(object):
 
         for node in self.rttree.daynodes[-2]:
             for variance in self.nodevariances[node]:
-                variance.price = eraly_term(sum(
-                    variance.P[l] * lastdayprice[variance.suss[l]]
-                    for l in range(-n, n+1)
-                ))
+                variance.price = eraly_term(
+                    sum(variance.P[l] * lastdayprice[variance.suss[l]]
+                        for l in range(-n, n+1))
+                    / exp(self.rttree.r),
+                    exp(node.y)
+                )
 
         for day in self.rttree.daynodes[:-2][::-1]:
             for node in day:
@@ -94,6 +96,9 @@ class BackwardInduction(object):
 
                         variance.price += variance.P[l] * price
 
-                    variance.price = eraly_term(variance.price)
+                    variance.price = eraly_term(
+                        variance.price / exp(self.rttree.r),
+                        exp(node.y)
+                    )
 
         return self.nodevariances[self.rttree.nodemap[(0, 0)]][0].price

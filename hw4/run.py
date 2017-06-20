@@ -34,4 +34,4 @@ if __name__ == '__main__':
     rttree.build()
 
     backinduct = BackwardInduction(rttree, args.strikeprice, args.variances)
-    print backinduct.european_callprice
+    print backinduct.american_putprice

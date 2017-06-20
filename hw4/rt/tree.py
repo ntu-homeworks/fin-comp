@@ -23,7 +23,6 @@ class RTTree(object):
                    % (self.h2max * 100000, self.h2min * 100000)
 
     def __init__(self, days, r, stockprice0, h0, B0, B1, B2, c, periods):
-        self.nodemap = {}
         self.y0 = log(stockprice0)
         self.days = days
         self.n = periods
@@ -32,7 +31,10 @@ class RTTree(object):
         self.gamma = h0
         self.gamma_n = self.gamma / (self.n ** 0.5)
 
-        self.nodemap[(0, 0)] = self.Node(h0 ** 2, self.y0, self.n)
+        self.nodemap = {
+            (0, 0): self.Node(h0 ** 2, self.y0, self.n)
+        }
+        self.daynodes = [[] for level in range(self.days + 1)]
         self.pfactory = ProbabilityFactory(self.gamma, self.n, self.r)
         self.rule = UpdateRule(B0, B1, B2, c, self.gamma_n, self.r)
 
@@ -48,6 +50,9 @@ class RTTree(object):
                     self._build_suss(i, j), (minj, maxj), (min, max)
                 )
 
+        for (i, j), node in self.nodemap.iteritems():
+            self.daynodes[i].append(node)
+
     def _build_suss(self, i, j):
         curnode = self.nodemap.get((i, j))
         if curnode == None:
@@ -60,13 +65,7 @@ class RTTree(object):
 
         minj, maxj = 0, 0
         for h2_t, suss in runs:
-            eta = int(ceil((h2_t ** 0.5) / self.gamma))
-
-            while True:
-                P = self.pfactory(eta, h2_t)
-                if P:
-                    break
-                eta += 1
+            eta = self.find_eta(h2_t)[0]
             minj = min(minj, j - eta * self.n)
             maxj = max(maxj, j + eta * self.n)
 
@@ -88,4 +87,15 @@ class RTTree(object):
             curnode.min_suss = curnode.max_suss
 
         return minj, maxj
+
+    def find_eta(self, h2_t):
+        eta = int(ceil((h2_t ** 0.5) / self.gamma))
+
+        while True:
+            P = self.pfactory(eta, h2_t)
+            if P:
+                break
+            eta += 1
+
+        return eta, P
 

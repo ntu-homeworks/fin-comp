@@ -37,16 +37,36 @@ class BackwardInduction(object):
 
     @property
     def european_callprice(self):
+        return self._pricing(True, True)
+
+    @property
+    def european_putprice(self):
+        return self._pricing(False, True)
+
+    @property
+    def american_callprice(self):
+        return self._pricing(True, False)
+
+    @property
+    def american_putprice(self):
+        return self._pricing(False, False)
+
+    def _pricing(self, call_put, european_american):
+        def profit(p):
+            return max((p - self.strike) * (1 if call_put else -1), 0)
+        def eraly_term(p):
+            return p if european_american else max(p, 0)
+
         n = self.rttree.n
-        lastdayprice = {node: max(exp(node.y) - self.strike, 0)
+        lastdayprice = {node: profit(exp(node.y))
                         for node in self.rttree.daynodes[-1]}
 
         for node in self.rttree.daynodes[-2]:
             for variance in self.nodevariances[node]:
-                variance.price = sum(
+                variance.price = eraly_term(sum(
                     variance.P[l] * lastdayprice[variance.suss[l]]
                     for l in range(-n, n+1)
-                )
+                ))
 
         for day in self.rttree.daynodes[:-2][::-1]:
             for node in day:
@@ -54,23 +74,26 @@ class BackwardInduction(object):
                     variance.price = 0
 
                     for l in range(-n, n+1):
-                        suss = variance.suss[l]
-                        if variance.h2_t1[l] <= self.nodevariances[suss][0].h2_t:
-                            variance.price += variance.P[l] * self.nodevariances[suss][0].price
-                            continue
+                        h2_t1 = variance.h2_t1[l]
+                        suss = self.nodevariances[variance.suss[l]]
 
-                        for ki in range(self.k):
-                            if variance.h2_t1[l] >= self.nodevariances[suss][ki].h2_t:
-                                break
+                        if suss[0].h2_t < h2_t1 < suss[-1].h2_t:
+                            for ki in range(self.k):
+                                if h2_t1 >= suss[ki].h2_t:
+                                    break
 
-                        if ki == self.k - 1:
-                            variance.price += variance.P[l] * self.nodevariances[suss][self.k-1].price
+                            v1 = suss[ki]
+                            v2 = suss[ki+1]
+                            price = ((h2_t1 - v1.h2_t) * v2.price
+                                     + (v2.h2_t - h2_t1) * v1.price
+                                    ) / (v2.h2_t - v1.h2_t)
+
                         else:
-                            v1 = self.nodevariances[suss][ki]
-                            v2 = self.nodevariances[suss][ki+1]
-                            variance.price += variance.P[l] * (
-                                (variance.h2_t1[l] - v1.h2_t) * v2.price
-                                + (v2.h2_t - variance.h2_t1[l]) * v1.price
-                            ) / (v2.h2_t - v1.h2_t)
+                            price = suss[0].price if h2_t1 <= suss[0].h2_t \
+                                    else suss[-1].price
+
+                        variance.price += variance.P[l] * price
+
+                    variance.price = eraly_term(variance.price)
 
         return self.nodevariances[self.rttree.nodemap[(0, 0)]][0].price

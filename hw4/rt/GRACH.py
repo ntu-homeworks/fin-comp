@@ -31,7 +31,7 @@ class ProbabilityFactory(object):
             self.pm = 1 - tmp
             self.pd = (tmp / 2) - tmp2
 
-            self.pl = range(2 * n + 1)
+            self.pl = [0 for l in range(2 * n + 1)]
             for ju in range(n + 1):
                 for jd in range(n + 1):
                     jm = n - ju - jd

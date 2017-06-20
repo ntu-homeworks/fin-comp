@@ -3,6 +3,7 @@
 import argparse
 from pprint import pprint
 from rt.tree import RTTree
+from rt.pricing import BackwardInduction
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -31,4 +32,6 @@ if __name__ == '__main__':
     rttree = RTTree(args.days, args.r, args.stockprice, args.h0,
                     args.B0, args.B1, args.B2, args.c, args.periods)
     rttree.build()
-    pprint(rttree.nodemap)
+
+    backinduct = BackwardInduction(rttree, args.strikeprice, args.variances)
+    print backinduct.european_callprice

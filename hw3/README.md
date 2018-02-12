@@ -3,7 +3,7 @@ Pricing American Puts using Least-squares Monte Carlo Method
 梁智湧
 
 ### About the Source Code
-This program is written in C, cooperated with *[GNU Scientific Library][GSL]* (GSL), and built with CMake. The following files shall be included:
+This program is written in C, cooperated with *[GNU Scientific Library][GSL]* (GSL) and built with [CMake][]. The following files shall be included:
 
 - `CMakeLists.txt`: CMake configuration to build the program.
 - `arguments.h`, `arguments.c`: Input arguments handler.
@@ -41,20 +41,25 @@ For the detail usage, run the program without any argument to show the help mess
 
 CPU
 : Intel(R) Xeon(R) CPU E5-2620 0 @ 2.00GHz (Max 2500MHz)
+
 Operating system
 : Ubuntu 16.04 x86\_64
+
 Compiler
 : gcc (Ubuntu 5.4.0-6ubuntu1~16.04.4) 5.4.0 20160609
+
 GSL (libgsl-dev)
 : 2.1+dfsg-2
+
 CMake version
 : 3.5.1
+
 GNU Make version
 : 4.1
 
 ### Example Output
 
-The program can usually finish in about 2.8 seconds under the environment described above.
+The program can usually finish in about **2.8 seconds** under the environment described above.
 
 #### Using Pseudo Random Number Generator
 ```bash
@@ -83,4 +88,5 @@ Standard error: 0.021943
 ```
 
 [GSL]: https://www.gnu.org/software/gsl/
+[CMake]: https://cmake.org
 [^polyfit]: Provided by [Rosettacode.org](https://rosettacode.org/wiki/Polynomial_regression#C)
